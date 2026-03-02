@@ -48,14 +48,14 @@ Before the app can authenticate users you must register it in the [Spotify Devel
 2. Under **Edit Settings → Redirect URIs**, add:
 
    ```
-   http://localhost:5000/auth/spotify/callback
+   http://127.0.0.1:5001/auth/spotify/callback
    ```
 
    This is the URL Spotify sends the user back to after they approve the login. It points to the Express backend's OAuth callback handler. Click **Save**.
 
 3. Copy your **Client ID** and **Client Secret** — you will need them in the backend's environment variables.
 
-> When deploying to production, add your production callback URL alongside the localhost one, e.g. `https://your-api.example.com/auth/spotify/callback`.
+> When deploying to production, add your production callback URL alongside the 127.0.0.1 one, e.g. `https://your-api.example.com/auth/spotify/callback`.
 
 ---
 
@@ -76,7 +76,7 @@ cp .env.local.example .env.local
 Open `.env.local` and set the URL of the running Express backend:
 
 ```
-NEXT_PUBLIC_API_URL=http://localhost:5000
+NEXT_PUBLIC_API_URL=http://127.0.0.1:5001
 ```
 
 The Express backend needs its own `.env` file with the Spotify credentials and the matching redirect URI:
@@ -84,7 +84,7 @@ The Express backend needs its own `.env` file with the Spotify credentials and t
 ```
 SPOTIFY_CLIENT_ID=your_client_id
 SPOTIFY_CLIENT_SECRET=your_client_secret
-SPOTIFY_REDIRECT_URI=http://localhost:5000/auth/spotify/callback
+SPOTIFY_REDIRECT_URI=http://127.0.0.1:5000/auth/spotify/callback
 SESSION_SECRET=a_long_random_string
 ```
 
@@ -94,7 +94,7 @@ SESSION_SECRET=a_long_random_string
 npm run dev
 ```
 
-The app will be available at [http://localhost:3000](http://localhost:3000).
+The app will be available at [http://127.0.0.1:3000](http://127.0.0.1:3000).
 
 ---
 

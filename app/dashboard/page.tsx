@@ -6,16 +6,16 @@ import { apiFetch } from "@/lib/api";
 import Image from "next/image";
 
 interface SpotifyUser {
-  display_name: string;
+  displayName: string;
   email: string;
-  images?: { url: string }[];
+  profileImageUrl: string;
 }
 
 export default function DashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<SpotifyUser | null>(null);
   const [loading, setLoading] = useState(true);
-
+  console.log(user);
   useEffect(() => {
     apiFetch("/auth/me")
       .then(async (res) => {
@@ -50,8 +50,8 @@ export default function DashboardPage() {
     return null;
   }
 
-  const avatarUrl = user.images?.[0]?.url;
-
+  const avatarUrl = user.profileImageUrl;
+``
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-8 px-4">
       <div className="w-full max-w-sm rounded-2xl bg-gray-900 p-8 shadow-xl">
@@ -59,18 +59,18 @@ export default function DashboardPage() {
           {avatarUrl ? (
             <Image
               src={avatarUrl}
-              alt={user.display_name}
+              alt={user.displayName}
               width={96}
               height={96}
               className="rounded-full object-cover"
             />
           ) : (
             <div className="flex h-24 w-24 items-center justify-center rounded-full bg-green-500 text-3xl font-bold text-black">
-              {user.display_name.charAt(0).toUpperCase()}
+              {user?.displayName?.charAt(0).toUpperCase()}
             </div>
           )}
           <div className="text-center">
-            <h1 className="text-2xl font-bold">{user.display_name}</h1>
+            <h1 className="text-2xl font-bold">{user.displayName}</h1>
             <p className="mt-1 text-sm text-gray-400">{user.email}</p>
           </div>
         </div>
