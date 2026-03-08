@@ -13,7 +13,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "scontent-syd2-1.xx.fbcdn.net",
+        hostname: "*.fbcdn.net",
       },
       {
         protocol: "https",
