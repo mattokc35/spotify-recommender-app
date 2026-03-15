@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { apiFetch } from "@/lib/api";
-import { ChatMessage as ChatMessageType } from "@/types/recommendations";
+import { ChatMessage as ChatMessageType, Track } from "@/types/recommendations";
 import ChatMessage from "./ChatMessage";
 
 function generateId() {
@@ -100,7 +100,7 @@ export default function RecommendationChat() {
         return;
       }
 
-      const data: { reply: string } = await res.json();
+      const data: { reply: string; tracks?: Track[] } = await res.json();
 
       setMessages((prev) =>
         prev.map((m) =>
@@ -110,6 +110,7 @@ export default function RecommendationChat() {
                 loading: false,
                 role: "assistant" as const,
                 text: data.reply,
+                tracks: data.tracks,
               }
             : m
         )

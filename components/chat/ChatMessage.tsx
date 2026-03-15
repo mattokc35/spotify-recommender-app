@@ -1,4 +1,5 @@
 import { ChatMessage as ChatMessageType } from "@/types/recommendations";
+import TrackList from "./TrackList";
 
 interface ChatMessageProps {
   message: ChatMessageType;
@@ -42,7 +43,12 @@ export default function ChatMessage({ message }: ChatMessageProps) {
             <span className="h-2 w-2 rounded-full bg-gray-400 animate-bounce" />
           </div>
         ) : (
-          <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.text}</p>
+          <>
+            <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.text}</p>
+            {message.tracks && message.tracks.length > 0 && (
+              <TrackList tracks={message.tracks} />
+            )}
+          </>
         )}
       </div>
     </div>
