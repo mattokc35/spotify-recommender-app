@@ -2,15 +2,16 @@
 
 import { useEffect, useRef, useState } from "react";
 import { apiFetch } from "@/lib/api";
-import { ChatMessage as ChatMessageType, RecommendationResponse } from "@/types/recommendations";
+import { ChatMessage as ChatMessageType } from "@/types/recommendations";
 import ChatMessage from "./ChatMessage";
 
 function generateId() {
   return Math.random().toString(36).slice(2, 10);
 }
 
-const SUGGESTIONS = process.env.NODE_ENV === 'production' ? [] : [
-  "Recommend me a song",
+const SUGGESTIONS = [
+  "Tell me a joke",
+  "What can you help me with?",
 ];
 
 export default function RecommendationChat() {
@@ -18,13 +19,36 @@ export default function RecommendationChat() {
     {
       id: "welcome",
       role: "assistant",
-      text: "Hi! I'll recommend songs based on your Spotify listening history. Ask me for a recommendation or try one of the suggestions below.",
+      text: "Hi! I'm your AI assistant. Ask me anything!",
     },
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Load chat history on mount
+  useEffect(() => {
+    apiFetch("/chat/history")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && Array.isArray(data.messages) && data.messages.length > 0) {
+          const history: ChatMessageType[] = data.messages.map(
+            (m: { role: string; content: string }) => ({
+              id: generateId(),
+              role: (m.role === "user" || m.role === "error"
+                ? m.role
+                : "assistant") as ChatMessageType["role"],
+              text: m.content,
+            })
+          );
+          setMessages(history);
+        }
+      })
+      .catch(() => {
+        // ignore history load errors; keep welcome message
+      });
+  }, []);
 
   // Auto-scroll to bottom on new messages
   useEffect(() => {
@@ -52,7 +76,11 @@ export default function RecommendationChat() {
     setIsLoading(true);
 
     try {
-      const res = await apiFetch("/recommendations");
+      const res = await apiFetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text.trim() }),
+      });
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({ error: "Unknown error" }));
@@ -71,20 +99,7 @@ export default function RecommendationChat() {
         return;
       }
 
-      const data: RecommendationResponse = await res.json();
-      const tracks = data.recommendations;
-
-      const topGenres = data.profile.topGenres
-        .slice(0, 3)
-        .map(([g]) => g)
-        .join(", ");
-
-      const responseText =
-        tracks.length === 0
-          ? "I couldn't find any new recommendations right now. Try again in a moment!"
-          : `Here are ${tracks.length} songs picked for you based on your taste${
-              topGenres ? ` (top genres: ${topGenres})` : ""
-            }:`;
+      const data: { reply: string } = await res.json();
 
       setMessages((prev) =>
         prev.map((m) =>
@@ -93,8 +108,7 @@ export default function RecommendationChat() {
                 ...m,
                 loading: false,
                 role: "assistant" as const,
-                text: responseText,
-                tracks,
+                text: data.reply,
               }
             : m
         )
@@ -159,8 +173,8 @@ export default function RecommendationChat() {
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Ask for a song recommendation…"
-          disabled={isLoading || true}
+          placeholder="Type a message…"
+          disabled={isLoading}
           className="flex-1 rounded-full bg-gray-800 px-4 py-2 text-sm text-white placeholder-gray-500 outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50"
         />
         <button
