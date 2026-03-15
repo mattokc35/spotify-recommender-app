@@ -1,5 +1,6 @@
 import { ChatMessage as ChatMessageType } from "@/types/recommendations";
 import TrackList from "./TrackList";
+import ArtistList from "./ArtistList";
 
 interface ChatMessageProps {
   message: ChatMessageType;
@@ -44,9 +45,14 @@ export default function ChatMessage({ message }: ChatMessageProps) {
           </div>
         ) : (
           <>
-            <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.text}</p>
+            {message.text && (
+              <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.text}</p>
+            )}
             {message.tracks && message.tracks.length > 0 && (
               <TrackList tracks={message.tracks} />
+            )}
+            {message.artists && message.artists.length > 0 && (
+              <ArtistList artists={message.artists} />
             )}
           </>
         )}

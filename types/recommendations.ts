@@ -10,10 +10,18 @@ export interface Track {
   durationMs?: number;
 }
 
+export interface Artist {
+  name: string;
+  imageUrl: string;
+  spotifyUrl: string;
+  genres: string[];
+}
+
 export interface ChatMessage {
   id: string;
   role: MessageRole;
   text: string;
   loading?: boolean;
   tracks?: Track[];
+  artists?: Artist[];
 }
