@@ -1,35 +1,39 @@
-import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import LoginButton from "@/components/LoginButton";
-import { API_BASE_URL } from "@/lib/api";
+import { getToken, clearToken, apiFetch } from "@/lib/api";
 
-async function getSession() {
-  try {
-    const cookieStore = await cookies();
-    const cookieHeader = cookieStore
-      .getAll()
-      .map((c) => `${c.name}=${c.value}`)
-      .join("; ");
+export default function HomePage() {
+  const router = useRouter();
+  const [checking, setChecking] = useState(true);
 
-    const res = await fetch(`${API_BASE_URL}/auth/me`, {
-      headers: { cookie: cookieHeader },
-      cache: "no-store",
-    });
-
-    if (res.ok) {
-      return await res.json();
+  useEffect(() => {
+    const token = getToken();
+    if (!token) {
+      setChecking(false);
+      return;
     }
-  } catch {
-    // Backend not reachable – treat as logged out
-  }
-  return null;
-}
+    // Verify token is still valid
+    apiFetch("/auth/me")
+      .then((res) => {
+        if (res.ok) {
+          router.replace("/dashboard");
+        } else {
+          clearToken();
+          setChecking(false);
+        }
+      })
+      .catch(() => setChecking(false));
+  }, [router]);
 
-export default async function HomePage() {
-  const session = await getSession();
-
-  if (session) {
-    redirect("/dashboard");
+  if (checking) {
+    return (
+      <main className="flex min-h-screen items-center justify-center">
+        <p className="text-gray-400">Loading…</p>
+      </main>
+    );
   }
 
   return (

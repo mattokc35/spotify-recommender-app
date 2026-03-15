@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { apiFetch } from "@/lib/api";
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { apiFetch, setToken, getToken, clearToken } from "@/lib/api";
 import Image from "next/image";
 import RecommendationChat from "@/components/chat/RecommendationChat";
 
@@ -12,31 +12,48 @@ interface SpotifyUser {
   profileImageUrl: string;
 }
 
-export default function DashboardPage() {
+function DashboardContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [user, setUser] = useState<SpotifyUser | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Capture JWT from URL if present (OAuth redirect)
+    const tokenFromUrl = searchParams.get("token");
+    if (tokenFromUrl) {
+      setToken(tokenFromUrl);
+      // Clean the URL — remove ?token= from the address bar
+      window.history.replaceState({}, "", "/dashboard");
+    }
+
+    const token = tokenFromUrl || getToken();
+    if (!token) {
+      router.replace("/");
+      setLoading(false);
+      return;
+    }
+
     apiFetch("/auth/me")
       .then(async (res) => {
         if (!res.ok) {
+          clearToken();
           router.replace("/");
           return;
         }
         const data: SpotifyUser = await res.json();
         setUser(data);
       })
-      .catch(() => router.replace("/"))
+      .catch(() => {
+        clearToken();
+        router.replace("/");
+      })
       .finally(() => setLoading(false));
-  }, [router]);
+  }, [router, searchParams]);
 
-  const handleLogout = async () => {
-    try {
-      await apiFetch("/auth/logout", { method: "POST" });
-    } finally {
-      router.replace("/");
-    }
+  const handleLogout = () => {
+    clearToken();
+    router.replace("/");
   };
 
   if (loading) {
@@ -86,5 +103,19 @@ export default function DashboardPage() {
         <RecommendationChat />
       </div>
     </main>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="flex min-h-screen items-center justify-center">
+          <p className="text-gray-400">Loading…</p>
+        </main>
+      }
+    >
+      <DashboardContent />
+    </Suspense>
   );
 }
