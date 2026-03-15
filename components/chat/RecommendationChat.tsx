@@ -9,7 +9,7 @@ function generateId() {
   return Math.random().toString(36).slice(2, 10);
 }
 
-const SUGGESTIONS = [
+const SUGGESTIONS = process.env.NODE_ENV === 'production' ? [] : [
   "Recommend me a song",
 ];
 
