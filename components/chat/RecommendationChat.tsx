@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { apiFetch } from "@/lib/api";
-import { ChatMessage as ChatMessageType, Track } from "@/types/recommendations";
+import { ChatMessage as ChatMessageType, Track, Artist } from "@/types/recommendations";
 import ChatMessage from "./ChatMessage";
 
 function generateId() {
@@ -34,12 +34,14 @@ export default function RecommendationChat() {
       .then((data) => {
         if (data && Array.isArray(data.messages) && data.messages.length > 0) {
           const history: ChatMessageType[] = data.messages.map(
-            (m: { role: string; content: string }) => ({
+            (m: { role: string; content: string; tracks?: Track[]; artists?: Artist[] }) => ({
               id: generateId(),
               role: (m.role === "user" || m.role === "error"
                 ? m.role
                 : "assistant") as ChatMessageType["role"],
               text: m.content,
+              tracks: m.tracks,
+              artists: m.artists,
             })
           );
           setMessages(history);
@@ -99,7 +101,7 @@ export default function RecommendationChat() {
         return;
       }
 
-      const data: { reply: string; tracks?: Track[] } = await res.json();
+      const data: { reply: string; tracks?: Track[]; artists?: Artist[] } = await res.json();
 
       setMessages((prev) =>
         prev.map((m) =>
@@ -110,6 +112,7 @@ export default function RecommendationChat() {
                 role: "assistant" as const,
                 text: data.reply,
                 tracks: data.tracks,
+                artists: data.artists,
               }
             : m
         )
