@@ -1,4 +1,3 @@
-import TrackCard from "./TrackCard";
 import { ChatMessage as ChatMessageType } from "@/types/recommendations";
 
 interface ChatMessageProps {
@@ -21,7 +20,7 @@ export default function ChatMessage({ message }: ChatMessageProps) {
             className="h-5 w-5"
             aria-hidden="true"
           >
-            <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424a.622.622 0 0 1-.857.207c-2.348-1.435-5.304-1.76-8.785-.964a.623.623 0 0 1-.277-1.215c3.809-.87 7.076-.496 9.712 1.115a.623.623 0 0 1 .207.857zm1.223-2.722a.779.779 0 0 1-1.072.257c-2.687-1.652-6.785-2.131-9.965-1.166a.779.779 0 0 1-.968-.519.78.78 0 0 1 .519-.968c3.632-1.102 8.147-.568 11.228 1.324a.78.78 0 0 1 .258 1.072zm.105-2.835C14.692 8.95 9.375 8.775 6.297 9.71a.935.935 0 1 1-.543-1.79c3.532-1.072 9.404-.865 13.115 1.338a.936.936 0 0 1-.955 1.609z" />
+            <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 15h-2v-6h2zm0-8h-2V7h2z" />
           </svg>
         </div>
       )}
@@ -43,18 +42,7 @@ export default function ChatMessage({ message }: ChatMessageProps) {
             <span className="h-2 w-2 rounded-full bg-gray-400 animate-bounce" />
           </div>
         ) : (
-          <>
-            <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.text}</p>
-
-            {/* Track cards */}
-            {message.tracks && message.tracks.length > 0 && (
-              <div className="mt-3 flex flex-col gap-2">
-                {message.tracks.map((track) => (
-                  <TrackCard key={track.id} track={track} />
-                ))}
-              </div>
-            )}
-          </>
+          <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.text}</p>
         )}
       </div>
     </div>
