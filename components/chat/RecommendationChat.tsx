@@ -12,6 +12,7 @@ function generateId() {
 const SUGGESTIONS = [
   "Show me my top songs this month",
   "Show me my top artists this month",
+  "Recommend me a song 🎵",
   "What can you help me with?",
 ];
 
